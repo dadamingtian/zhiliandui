@@ -16,4 +16,151 @@
 ## 焊接
 过程过于惨不忍睹，略过一下。
 ## 接线
-！[接线]（C:\Users\a3167\Desktop）
+！[接线]（http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5qyhxo36q.QR.4dY3W95YnTDeWQmHbbL1ov28SQEoEq*zte3HEfcDrk5EGIrac6A2qAkX7ryCJhdF6xTQ0QgSD0!/mnull&bo=zwIYBgAAAAABB*M!&rf=photolist&t=5）
+根据大神们的教程，接线过程还算简单。
+## 烧录程序
+由于看不懂代码，只能借鉴大佬们的代码。
+网关代码：
+(```)
+#include <LoRaNow.h>
+#include <WiFi.h>
+#include <WebServer.h>
+#include <StreamString.h>
+
+#define MISO 19
+#define MOSI 23
+#define SCK 18
+#define SS 5
+
+#define DIO0 4
+
+const char *ssid = "YZ";
+const char *password = "101027@qwer";
+
+WebServer server(80);
+
+const char *script = "<script>function loop() {var resp = GET_NOW('loranow'); var area = document.getElementById('area').value; document.getElementById('area').value = area + resp; setTimeout('loop()', 1000);} function GET_NOW(get) { var xmlhttp; if (window.XMLHttpRequest) xmlhttp = new XMLHttpRequest(); else xmlhttp = new ActiveXObject('Microsoft.XMLHTTP'); xmlhttp.open('GET', get, false); xmlhttp.send(); return xmlhttp.responseText; }</script>";
+
+void handleRoot()
+{
+  String str = "";
+  str += "<html>";
+  str += "<head>";
+  str += "<title>ESP32 - LoRaNow</title>";
+  str += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
+  str += script;
+  str += "</head>";
+  str += "<body onload='loop()'>";
+  str += "<center>";
+  str += "<textarea id='area' style='width:800px; height:400px;'></textarea>";
+  str += "</center>";
+  str += "</body>";
+  str += "</html>";
+  server.send(200, "text/html", str);
+}
+
+static StreamString string;
+
+void handleLoRaNow()
+{
+  server.send(200, "text/plain", string);
+  while (string.available()) // clear
+  {
+    string.read();
+  }
+}
+
+void setup(void)
+{
+
+  Serial.begin(115200);
+
+  WiFi.mode(WIFI_STA);
+  if (ssid != "")
+    WiFi.begin(ssid, password);
+  WiFi.begin();
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", handleRoot);
+  server.on("/loranow", handleLoRaNow);
+  server.begin();
+  Serial.println("HTTP server started");
+
+  LoRaNow.setFrequencyCN(); // Select the frequency 486.5 MHz - Used in China
+  // LoRaNow.setFrequencyEU(); // Select the frequency 868.3 MHz - Used in Europe
+  // LoRaNow.setFrequencyUS(); // Select the frequency 904.1 MHz - Used in USA, Canada and South America
+  // LoRaNow.setFrequencyAU(); // Select the frequency 917.0 MHz - Used in Australia, Brazil and Chile
+
+  // LoRaNow.setFrequency(frequency);
+  // LoRaNow.setSpreadingFactor(sf);
+  // LoRaNow.setPins(ss, dio0);
+
+  LoRaNow.setPinsSPI(SCK, MISO, MOSI, SS, DIO0); // Only works with ESP32
+
+  while (!LoRaNow.begin())
+  {
+    Serial.println("LoRa init failed. Check your connections.");
+    delay(5000);
+  }
+
+  LoRaNow.onMessage(onMessage);
+  LoRaNow.gateway();
+}
+
+void loop(void)
+{
+  LoRaNow.loop();
+  server.handleClient();
+}
+
+void onMessage(uint8_t *buffer, size_t size)
+{
+  unsigned long id = LoRaNow.id();
+  byte count = LoRaNow.count();
+
+  Serial.print("Node Id: ");
+  Serial.println(id, HEX);
+  Serial.print("Count: ");
+  Serial.println(count);
+  Serial.print("Message: ");
+  Serial.write(buffer, size);
+  Serial.println();
+  Serial.println();
+
+  if (string.available() > 512)
+  {
+    while (string.available())
+    {
+      string.read();
+    }
+  }
+
+  string.print("Node Id: ");
+  string.println(id, HEX);
+  string.print("Count: ");
+  string.println(count);
+  string.print("Message: ");
+  string.write(buffer, size);
+  string.println();
+  string.println();
+
+  // Send data to the node
+  LoRaNow.clear();
+  LoRaNow.print("LoRaNow Gateway Message ");
+  LoRaNow.print(millis());
+  LoRaNow.send();
+}
+(```)
