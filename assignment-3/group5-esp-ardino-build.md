@@ -21,7 +21,7 @@
 ## 烧录程序
 由于看不懂代码，只能借鉴大佬们的代码。
 网关代码：
-(```)
+```
 #include <LoRaNow.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -163,4 +163,90 @@ void onMessage(uint8_t *buffer, size_t size)
   LoRaNow.print(millis());
   LoRaNow.send();
 }
-(```)
+```
+节点代码：
+```
+#include <LoRaNow.h>
+
+//vspi for lora radio module
+#define MISO 19
+#define MOSI 23
+#define SCK 18
+#define SS 5
+
+#define DIO0 4
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// GPIO where the DS18B20 is connected to
+const int oneWireBus = 25;     
+
+// Setup a oneWire instance to communicate with any OneWire devices
+OneWire oneWire(oneWireBus);
+
+// Pass our oneWire reference to Dallas Temperature sensor 
+DallasTemperature sensors(&oneWire);
+
+float tmp;
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("LoRaNow Simple Node");
+  sensors.begin();
+
+   LoRaNow.setFrequencyCN(); // Select the frequency 486.5 MHz - Used in China
+  // LoRaNow.setFrequencyEU(); // Select the frequency 868.3 MHz - Used in Europe
+  // LoRaNow.setFrequencyUS(); // Select the frequency 904.1 MHz - Used in USA, Canada and South America
+  // LoRaNow.setFrequencyAU(); // Select the frequency 917.0 MHz - Used in Australia, Brazil and Chile
+
+  // LoRaNow.setFrequency(frequency);
+  // LoRaNow.setSpreadingFactor(sf);
+  // LoRaNow.setPins(ss, dio0);
+
+   LoRaNow.setPinsSPI(SCK, MISO, MOSI, SS, DIO0); // Only works with ESP32
+
+  if (!LoRaNow.begin()) {
+    Serial.println("LoRa init failed. Check your connections.");
+    while (true);
+  }
+
+  LoRaNow.onMessage(onMessage);
+  LoRaNow.onSleep(onSleep);
+  LoRaNow.showStatus(Serial);
+}
+
+void loop() {
+  sensors.requestTemperatures(); 
+  tmp = sensors.getTempCByIndex(0);
+  LoRaNow.loop();
+}
+
+
+void onMessage(uint8_t *buffer, size_t size)
+{
+  Serial.print("Receive Message: ");
+  Serial.write(buffer, size);
+  Serial.println();
+  Serial.println();
+}
+
+void onSleep()
+{
+  Serial.println("Sleep");
+  Serial.println(tmp);
+  delay(5000); // "kind of a sleep"
+  Serial.println("Send Message");
+  LoRaNow.print("LoRaNow Node Message ");
+  //Serial.println("LoRaNow Message sended");
+  LoRaNow.print(millis());
+  LoRaNow.print("-");
+  LoRaNow.print(tmp);
+  LoRaNow.send();
+}
+```
+## 运行结果
+由于不会改代码所以结果与实际不符。
+！[](http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5uWuVMxMO9zg6Br.6luUVBfpEDtINRqcRht1Xwm11kBVaM39i.unzsmtP4OiaTyNphzXCD4fM5U*IPQwotnLUWo!/mnull&bo=zwPDAQAAAAADByw!&rf=photolist&t=5)
+## 反思
+看懂代码的能力太弱，焊接等基本操作不熟练，但让我们懂得了团队协作的重要性和大学对于我们工程素养的要求，更加激起了我们对这门课程的兴趣！
