@@ -16,7 +16,7 @@
 ## 焊接
 过程过于惨不忍睹，略过一下。
 ## 接线
-！[接线]（http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5qyhxo36q.QR.4dY3W95YnTDeWQmHbbL1ov28SQEoEq*zte3HEfcDrk5EGIrac6A2qAkX7ryCJhdF6xTQ0QgSD0!/mnull&bo=zwIYBgAAAAABB*M!&rf=photolist&t=5）
+![接线]（http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5qyhxo36q.QR.4dY3W95YnTDeWQmHbbL1ov28SQEoEq*zte3HEfcDrk5EGIrac6A2qAkX7ryCJhdF6xTQ0QgSD0!/mnull&bo=zwIYBgAAAAABB*M!&rf=photolist&t=5）
 根据大神们的教程，接线过程还算简单。
 ## 烧录程序
 由于看不懂代码，只能借鉴大佬们的代码。
@@ -247,6 +247,6 @@ void onSleep()
 ```
 ## 运行结果
 由于不会改代码所以结果与实际不符。
-！[运行结果](http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5uWuVMxMO9zg6Br.6luUVBfpEDtINRqcRht1Xwm11kBVaM39i.unzsmtP4OiaTyNphzXCD4fM5U*IPQwotnLUWo!/mnull&bo=zwPDAQAAAAADByw!&rf=photolist&t=5)
+![运行结果](http://m.qpic.cn/psc?/V1196dws0Zlxmv/ruAMsa53pVQWN7FLK88i5uWuVMxMO9zg6Br.6luUVBfpEDtINRqcRht1Xwm11kBVaM39i.unzsmtP4OiaTyNphzXCD4fM5U*IPQwotnLUWo!/mnull&bo=zwPDAQAAAAADByw!&rf=photolist&t=5)
 ## 反思
 看懂代码的能力太弱，焊接等基本操作不熟练，但让我们懂得了团队协作的重要性和大学对于我们工程素养的要求，更加激起了我们对这门课程的兴趣！
